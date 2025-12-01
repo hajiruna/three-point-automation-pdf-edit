@@ -5,6 +5,7 @@ import { PdfUploader, PdfPageGrid, PdfToolbar, PdfPreviewModal } from '@/compone
 import { useToast } from '@/components/ui'
 import { usePdfDocument, usePageSelection, usePdfRenderer } from '@/hooks'
 import { extractPages, downloadPdf, generateOutputFileName } from '@/lib/pdf'
+import { logPdfExtraction } from '@/lib/supabase/logger'
 
 export default function Home() {
   const { showToast } = useToast()
@@ -66,6 +67,14 @@ export default function Home() {
       const pdfBytes = await extractPages(document.arrayBuffer, selectedArray, pdfProxy ?? undefined)
       const outputFileName = generateOutputFileName(document.fileName)
       await downloadPdf(pdfBytes, outputFileName)
+
+      // Log usage to Supabase (non-blocking)
+      logPdfExtraction({
+        file_name: document.fileName,
+        total_pages: document.totalPages,
+        selected_pages: selectedArray,
+        pages_extracted: selectedArray.length,
+      })
 
       showToast(`${selectedPages.size}ページを抽出しました`, 'success')
     } catch (err) {
