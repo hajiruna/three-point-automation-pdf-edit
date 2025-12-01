@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { Header, Footer } from '@/components/layout'
-import { ToastProvider } from '@/components/ui'
+import { Header, Footer, ThemeWrapper } from '@/components/layout'
+import { ToastProvider, ThemeProvider } from '@/components/ui'
 
 export const metadata: Metadata = {
   title: 'PDF Page Selector - ページ抽出ツール',
@@ -15,14 +15,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body className="min-h-screen flex flex-col">
-        <ToastProvider>
-          <Header />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-        </ToastProvider>
+      <body>
+        <ThemeProvider>
+          <ThemeWrapper>
+            <ToastProvider>
+              <Header />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </ToastProvider>
+          </ThemeWrapper>
+        </ThemeProvider>
       </body>
     </html>
   )

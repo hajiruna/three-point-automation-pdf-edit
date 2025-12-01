@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
-/* Design System - Color Palette */
-@theme {
-  /* Primary */
-  --color-white: #FFFFFF;
-  --color-off-white: #FAFAFA;
+/* Design System - Color Palette (Light Mode - Default) */
+:root {
+  /* Background */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #FAFAFA;
+  --bg-tertiary: #F3F4F6;
 
   /* Accent - Red */
   --color-accent-50: #FEF2F2;
@@ -17,15 +18,78 @@
   --color-accent-700: #B91C1C;
 
   /* Text */
+  --text-primary: #1A1A1A;
+  --text-secondary: #4B5563;
+  --text-muted: #9CA3AF;
+
+  /* Border */
+  --border-light: #E5E7EB;
+  --border-medium: #D1D5DB;
+
+  /* Components */
+  --card-bg: #FFFFFF;
+  --card-border: #E5E7EB;
+  --input-bg: #FFFFFF;
+  --input-border: #D1D5DB;
+
+  /* Button */
+  --btn-primary-bg: #3B82F6;
+  --btn-primary-text: #FFFFFF;
+  --btn-secondary-bg: #F3F4F6;
+  --btn-secondary-text: #374151;
+
+  /* Typography */
+  --font-family-base: 'Meiryo UI', 'メイリオ', 'Hiragino Sans', sans-serif;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+  /* Background */
+  --bg-primary: #1F2937;
+  --bg-secondary: #111827;
+  --bg-tertiary: #374151;
+
+  /* Accent - Red (slightly adjusted for dark mode) */
+  --color-accent-50: #451A1A;
+  --color-accent-100: #5C2020;
+  --color-accent-200: #7F2D2D;
+  --color-accent-300: #B33A3A;
+  --color-accent-400: #EF4444;
+  --color-accent-500: #F87171;
+  --color-accent-600: #FCA5A5;
+  --color-accent-700: #FECACA;
+
+  /* Text */
+  --text-primary: #F9FAFB;
+  --text-secondary: #D1D5DB;
+  --text-muted: #9CA3AF;
+
+  /* Border */
+  --border-light: #374151;
+  --border-medium: #4B5563;
+
+  /* Components */
+  --card-bg: #1F2937;
+  --card-border: #374151;
+  --input-bg: #374151;
+  --input-border: #4B5563;
+
+  /* Button */
+  --btn-primary-bg: #3B82F6;
+  --btn-primary-text: #FFFFFF;
+  --btn-secondary-bg: #374151;
+  --btn-secondary-text: #E5E7EB;
+}
+
+/* Legacy variable mappings for compatibility */
+@theme {
+  --color-white: #FFFFFF;
+  --color-off-white: #FAFAFA;
   --color-text-primary: #1A1A1A;
   --color-text-secondary: #4B5563;
   --color-text-muted: #9CA3AF;
-
-  /* Border */
   --color-border-light: #E5E7EB;
   --color-border-medium: #D1D5DB;
-
-  /* Typography */
   --font-family-base: 'Meiryo UI', 'メイリオ', 'Hiragino Sans', sans-serif;
 }
 
@@ -35,10 +99,11 @@ html {
 }
 
 body {
-  background-color: var(--color-off-white);
-  color: var(--color-text-primary);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Selection styling */
@@ -60,14 +125,67 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-off-white);
+  background: var(--bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border-medium);
+  background: var(--border-medium);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
+  background: var(--text-muted);
+}
+
+/* Dark mode specific overrides for Tailwind classes */
+[data-theme="dark"] .bg-white {
+  background-color: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] .bg-gray-50 {
+  background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .bg-gray-100 {
+  background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .text-gray-700 {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .border-gray-200 {
+  border-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .border-gray-300 {
+  border-color: var(--border-medium) !important;
+}
+
+[data-theme="dark"] .hover\:bg-white\/50:hover {
+  background-color: rgba(55, 65, 81, 0.5) !important;
+}
+
+[data-theme="dark"] .hover\:bg-gray-50:hover {
+  background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4) !important;
 }
