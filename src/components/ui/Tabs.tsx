@@ -25,7 +25,7 @@ export function Tabs({ tabs, activeTab, onChange }: TabsProps) {
             font-medium text-sm
             transition-all duration-200
             ${activeTab === tab.id
-              ? 'bg-white text-gray-900 shadow-md'
+              ? 'bg-blue-500 text-white shadow-md'
               : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
             }
           `}

@@ -5,7 +5,7 @@ import { ToastProvider } from '@/components/ui'
 
 export const metadata: Metadata = {
   title: 'PDF Page Selector - ページ抽出ツール',
-  description: 'PDFファイルから必要なページだけを抽出してダウンロードできるツール',
+  description: '検定通知書PDFのページ操作ツール - ページ抽出・PDF合体',
 }
 
 export default function RootLayout({

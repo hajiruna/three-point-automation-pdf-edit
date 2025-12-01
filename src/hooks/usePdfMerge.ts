@@ -19,20 +19,23 @@ export function usePdfMerge() {
 
       for (const file of files) {
         const arrayBuffer = await readFileAsArrayBuffer(file)
+        // Create a copy BEFORE passing to loadPdfDocument (which detaches the original)
+        const arrayBufferCopy = arrayBuffer.slice(0)
         const doc = await loadPdfDocument(arrayBuffer)
 
         newPdfs.push({
           id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
           name: file.name,
           pageCount: doc.numPages,
-          arrayBuffer: arrayBuffer.slice(0), // Create a copy
+          arrayBuffer: arrayBufferCopy,
         })
       }
 
       setPdfs((prev) => [...prev, ...newPdfs])
     } catch (err) {
       console.error('Failed to load PDFs:', err)
-      setError('PDFの読み込みに失敗しました')
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      setError(`PDFの読み込みに失敗しました: ${errorMessage}`)
     } finally {
       setIsLoading(false)
     }
