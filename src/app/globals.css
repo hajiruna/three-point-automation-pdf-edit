@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+/* Design System - Color Palette */
+@theme {
+  /* Primary */
+  --color-white: #FFFFFF;
+  --color-off-white: #FAFAFA;
+
+  /* Accent - Red */
+  --color-accent-50: #FEF2F2;
+  --color-accent-100: #FEE2E2;
+  --color-accent-200: #FECACA;
+  --color-accent-300: #FCA5A5;
+  --color-accent-400: #F87171;
+  --color-accent-500: #EF4444;
+  --color-accent-600: #DC2626;
+  --color-accent-700: #B91C1C;
+
+  /* Text */
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #4B5563;
+  --color-text-muted: #9CA3AF;
+
+  /* Border */
+  --color-border-light: #E5E7EB;
+  --color-border-medium: #D1D5DB;
+
+  /* Typography */
+  --font-family-base: 'Meiryo UI', 'メイリオ', 'Hiragino Sans', sans-serif;
+}
+
+/* Base styles */
+html {
+  font-family: var(--font-family-base);
+}
+
+body {
+  background-color: var(--color-off-white);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection styling */
+::selection {
+  background-color: var(--color-accent-100);
+  color: var(--color-accent-700);
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-off-white);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-medium);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
