@@ -55,10 +55,20 @@ export function PdfToolbar({
             </div>
           </div>
 
-          {/* Reset Button */}
-          <Button variant="ghost" size="sm" onClick={onReset}>
+          {/* Reset Button - Large and visible */}
+          <button
+            onClick={onReset}
+            className="
+              flex items-center gap-2
+              px-5 py-2.5 rounded-lg
+              bg-blue-500 hover:bg-blue-600
+              text-white font-medium
+              shadow-md hover:shadow-lg
+              transition-all duration-200
+            "
+          >
             <svg
-              className="w-4 h-4 mr-1"
+              className="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -67,11 +77,11 @@ export function PdfToolbar({
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                d="M12 4v16m8-8H4"
               />
             </svg>
             新しいPDFを選択
-          </Button>
+          </button>
         </div>
 
         {/* Bottom Row - Actions */}
