@@ -30,7 +30,7 @@ export function Header() {
                 PDF Page Selector
               </h1>
               <p className="text-xs text-gray-500 hidden sm:block">
-                検定通知書PDFを適切にページ操作
+                検定通知書PDFを適切にページ操作する
               </p>
             </div>
           </div>

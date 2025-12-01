@@ -11,8 +11,8 @@ export function Footer() {
             &copy; {currentYear} PDF Page Selector. Maruhan North Central Office All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <span className="text-xs text-[--color-text-muted]">
-              ファイルはブラウザ内で処理され、サーバーには送信されません
+            <span className="text-sm font-bold text-[--color-text-muted]">
+              ※ ファイルはご自身のPC内のみで処理され、外部サーバーには送信されません
             </span>
           </div>
         </div>

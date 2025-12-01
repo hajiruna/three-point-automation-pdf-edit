@@ -216,7 +216,7 @@ export default function Home() {
         <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">PDFページを選択して抽出</h2>
-            <p className="text-gray-600 max-w-md">PDFファイルをアップロードして、必要なページだけを選んでダウンロードできます</p>
+            <p className="text-gray-600 max-w-md">PDFファイルをアップロードして、必要なページだけを選んで<br />ダウンロードできます</p>
           </div>
 
           <PdfUploader onFileSelect={handleFileSelect} isLoading={isLoadingPdf} />
@@ -317,7 +317,7 @@ export default function Home() {
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">複数のPDFを合体</h2>
-            <p className="text-gray-600 max-w-md mx-auto">PDFファイルを追加して、ドラッグ&ドロップで順番を変更できます</p>
+            <p className="text-gray-600 max-w-md mx-auto">PDFファイルを追加後、下部のリスト（一番左の二本線）を上下に<br />ドラッグすることで、順番を変更できます</p>
           </div>
 
           {/* Uploader */}
