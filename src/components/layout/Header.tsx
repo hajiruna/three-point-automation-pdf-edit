@@ -1,9 +1,11 @@
 'use client'
 
 import Image from 'next/image'
+import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from '@/components/ui'
 
 export function Header() {
+  const { data: session } = useSession()
   const { theme, toggleTheme } = useTheme()
   const isDark = theme === 'dark'
 
@@ -41,8 +43,27 @@ export function Header() {
             </div>
           </div>
 
-          {/* Right side - Theme Toggle & Logo */}
+          {/* Right side - User Info, Theme Toggle & Logo */}
           <div className="flex items-center gap-4">
+            {/* User Info & Sign Out */}
+            {session?.user && (
+              <div className="flex items-center gap-2">
+                <span className={`text-sm hidden md:block ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  {session.user.name || session.user.email}
+                </span>
+                <button
+                  onClick={() => signOut()}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    isDark
+                      ? 'bg-red-900/50 hover:bg-red-900 text-red-300'
+                      : 'bg-red-50 hover:bg-red-100 text-red-600'
+                  }`}
+                >
+                  サインアウト
+                </button>
+              </div>
+            )}
+
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
