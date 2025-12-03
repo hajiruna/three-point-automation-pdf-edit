@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import {
   PdfUploader,
@@ -53,6 +54,9 @@ export default function Home() {
   const { showToast } = useToast()
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [upgradeMessage, setUpgradeMessage] = useState('')
+
+  // Session
+  const { data: session } = useSession()
 
   // Billing
   const { checkLimit, refreshUsage, currentPlan } = useBilling()
@@ -144,6 +148,10 @@ export default function Home() {
         total_pages: document.totalPages,
         selected_pages: selectedArray,
         pages_extracted: selectedArray.length,
+        user: {
+          email: session?.user?.email,
+          name: session?.user?.name,
+        },
       })
 
       // 利用量を記録
@@ -171,7 +179,7 @@ export default function Home() {
     } finally {
       setIsExporting(false)
     }
-  }, [document, selectedPages, pdfProxy, showToast, billingEnabled, checkLimit, currentPlan, refreshUsage])
+  }, [document, selectedPages, pdfProxy, showToast, billingEnabled, checkLimit, currentPlan, refreshUsage, session])
 
   const handlePreviewPage = useCallback(
     async (pageNumber: number) => {
@@ -221,6 +229,10 @@ export default function Home() {
         file_names: mergePdfs_list.map((pdf) => pdf.name),
         file_count: mergePdfs_list.length,
         total_pages: totalPages,
+        user: {
+          email: session?.user?.email,
+          name: session?.user?.name,
+        },
       })
 
       // 利用量を記録
@@ -248,7 +260,7 @@ export default function Home() {
     } finally {
       setIsMerging(false)
     }
-  }, [mergePdfs_list, showToast, billingEnabled, checkLimit, currentPlan, refreshUsage])
+  }, [mergePdfs_list, showToast, billingEnabled, checkLimit, currentPlan, refreshUsage, session])
 
   // Render Extract Tab Content
   const renderExtractContent = () => {

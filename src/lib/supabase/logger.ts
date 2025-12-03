@@ -1,11 +1,17 @@
 import { supabase, isSupabaseConfigured } from './client'
 
+export interface UserInfo {
+  email?: string | null
+  name?: string | null
+}
+
 export interface UsageLog {
   file_name: string
   total_pages: number
   selected_pages: number[]
   pages_extracted: number
   user_agent?: string
+  user?: UserInfo
 }
 
 export interface MergeLog {
@@ -13,6 +19,7 @@ export interface MergeLog {
   file_count: number
   total_pages: number
   user_agent?: string
+  user?: UserInfo
 }
 
 export async function logPdfExtraction(data: UsageLog): Promise<void> {
@@ -30,7 +37,9 @@ export async function logPdfExtraction(data: UsageLog): Promise<void> {
         total_pages: data.total_pages,
         selected_pages: data.selected_pages,
         pages_extracted: data.pages_extracted,
-        user_agent: data.user_agent || navigator.userAgent,
+        user_agent: data.user_agent || (typeof navigator !== 'undefined' ? navigator.userAgent : 'server'),
+        user_email: data.user?.email || null,
+        user_name: data.user?.name || null,
         created_at: new Date().toISOString(),
       })
 
@@ -59,7 +68,9 @@ export async function logPdfMerge(data: MergeLog): Promise<void> {
         total_pages: data.total_pages,
         selected_pages: [],
         pages_extracted: data.file_count,
-        user_agent: data.user_agent || navigator.userAgent,
+        user_agent: data.user_agent || (typeof navigator !== 'undefined' ? navigator.userAgent : 'server'),
+        user_email: data.user?.email || null,
+        user_name: data.user?.name || null,
         created_at: new Date().toISOString(),
       })
 
