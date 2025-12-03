@@ -50,7 +50,10 @@ export function BillingProvider({ children }: BillingProviderProps) {
 
   // サブスクリプション情報を取得
   const refreshSubscription = useCallback(async () => {
-    if (!isBillingEnabled() || status !== 'authenticated') return
+    if (!isBillingEnabled()) return
+    // 開発環境では認証なしでも取得可能
+    const isDev = process.env.NODE_ENV === 'development'
+    if (!isDev && status !== 'authenticated') return
 
     try {
       const res = await fetch('/api/billing/subscription')
@@ -69,7 +72,10 @@ export function BillingProvider({ children }: BillingProviderProps) {
 
   // 利用量情報を取得
   const refreshUsage = useCallback(async () => {
-    if (!isBillingEnabled() || status !== 'authenticated') return
+    if (!isBillingEnabled()) return
+    // 開発環境では認証なしでも取得可能
+    const isDev = process.env.NODE_ENV === 'development'
+    if (!isDev && status !== 'authenticated') return
 
     try {
       const res = await fetch('/api/billing/usage')
@@ -114,21 +120,29 @@ export function BillingProvider({ children }: BillingProviderProps) {
   // カスタマーポータルを開く
   const openCustomerPortal = useCallback(async () => {
     if (!isBillingEnabled()) {
-      throw new Error('Billing is not enabled')
+      console.error('Billing is not enabled')
+      return
     }
 
-    const res = await fetch('/api/billing/portal', {
-      method: 'POST',
-    })
+    try {
+      console.log('Opening customer portal...')
+      const res = await fetch('/api/billing/portal', {
+        method: 'POST',
+      })
 
-    if (!res.ok) {
-      const error = await res.json()
-      throw new Error(error.error || 'Failed to create portal session')
-    }
+      if (!res.ok) {
+        const error = await res.json()
+        console.error('Portal API error:', error)
+        return
+      }
 
-    const data = await res.json()
-    if (data.success && data.data.url) {
-      window.location.href = data.data.url
+      const data = await res.json()
+      console.log('Portal response:', data)
+      if (data.success && data.data.url) {
+        window.location.href = data.data.url
+      }
+    } catch (err) {
+      console.error('Error opening customer portal:', err)
     }
   }, [])
 
@@ -154,7 +168,9 @@ export function BillingProvider({ children }: BillingProviderProps) {
 
     if (status === 'loading') return
 
-    if (status === 'authenticated' && session) {
+    // 開発環境では認証なしでも読み込み
+    const isDev = process.env.NODE_ENV === 'development'
+    if (isDev || (status === 'authenticated' && session)) {
       setIsLoading(true)
       Promise.all([refreshSubscription(), refreshUsage()])
         .finally(() => setIsLoading(false))

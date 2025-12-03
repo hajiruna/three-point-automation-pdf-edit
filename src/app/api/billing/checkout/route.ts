@@ -35,7 +35,13 @@ export async function POST(request: NextRequest) {
   try {
     // セッション確認
     const session = await getServerSession()
-    if (!session?.user?.email) {
+
+    // 開発環境ではセッションなしでもテスト可能
+    const isDev = process.env.NODE_ENV === 'development'
+    const userEmail = session?.user?.email || (isDev ? 'test@example.com' : null)
+    const userName = session?.user?.name || (isDev ? 'Test User' : null)
+
+    if (!userEmail) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -62,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = requireStripeServer()
-    const userId = session.user.email // NextAuthのユーザー識別子
+    const userId = userEmail // NextAuthのユーザー識別子
 
     // 顧客を取得または作成
     let customer = await getCustomerByUserId(userId)
@@ -71,8 +77,8 @@ export async function POST(request: NextRequest) {
     if (!stripeCustomerId) {
       // Stripe顧客を作成
       const stripeCustomer = await stripe.customers.create({
-        email: session.user.email,
-        name: session.user.name || undefined,
+        email: userEmail,
+        name: userName || undefined,
         metadata: {
           userId,
         },
@@ -86,7 +92,7 @@ export async function POST(request: NextRequest) {
       } else {
         customer = await createCustomer(
           userId,
-          session.user.email,
+          userEmail,
           stripeCustomerId,
           planInfo.currency
         )

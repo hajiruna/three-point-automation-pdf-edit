@@ -1,8 +1,10 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from '@/components/ui'
+import { isBillingEnabled } from '@/lib/billing/feature-flags'
 
 export function Header() {
   const { data: session } = useSession()
@@ -16,7 +18,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Title */}
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             {/* PDF Icon */}
             <div className="w-10 h-10 rounded-lg bg-green-500 flex items-center justify-center">
               <svg
@@ -41,10 +43,27 @@ export function Header() {
                 検定通知書PDFを適切にページ操作する
               </p>
             </div>
-          </div>
+          </Link>
 
           {/* Right side - User Info, Theme Toggle & Logo */}
           <div className="flex items-center gap-4">
+            {/* Billing Link */}
+            {isBillingEnabled() && (
+              <Link
+                href="/billing"
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-colors text-sm font-medium ${
+                  isDark
+                    ? 'bg-blue-900/50 hover:bg-blue-900 text-blue-300'
+                    : 'bg-blue-50 hover:bg-blue-100 text-blue-600'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                <span className="hidden sm:inline">プラン</span>
+              </Link>
+            )}
+
             {/* User Info & Sign Out */}
             {session?.user && (
               <div className="flex items-center gap-2">

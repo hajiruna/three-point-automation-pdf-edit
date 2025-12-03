@@ -65,12 +65,12 @@ export const PLANS: Record<PlanType, PlanDefinition> = {
     },
     stripePriceIds: {
       monthly: {
-        JPY: process.env.STRIPE_PRICE_PRO_MONTHLY_JPY || '',
-        USD: process.env.STRIPE_PRICE_PRO_MONTHLY_USD || '',
+        JPY: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY_JPY || '',
+        USD: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY_USD || '',
       },
       yearly: {
-        JPY: process.env.STRIPE_PRICE_PRO_YEARLY_JPY || '',
-        USD: process.env.STRIPE_PRICE_PRO_YEARLY_USD || '',
+        JPY: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY_JPY || '',
+        USD: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY_USD || '',
       },
     },
   },
@@ -110,12 +110,12 @@ export const PLANS: Record<PlanType, PlanDefinition> = {
     },
     stripePriceIds: {
       monthly: {
-        JPY: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY_JPY || '',
-        USD: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY_USD || '',
+        JPY: process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_MONTHLY_JPY || '',
+        USD: process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_MONTHLY_USD || '',
       },
       yearly: {
-        JPY: process.env.STRIPE_PRICE_ENTERPRISE_YEARLY_JPY || '',
-        USD: process.env.STRIPE_PRICE_ENTERPRISE_YEARLY_USD || '',
+        JPY: process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_YEARLY_JPY || '',
+        USD: process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_YEARLY_USD || '',
       },
     },
   },

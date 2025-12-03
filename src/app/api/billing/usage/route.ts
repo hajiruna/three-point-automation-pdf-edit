@@ -30,14 +30,19 @@ export async function GET() {
 
   try {
     const session = await getServerSession()
-    if (!session?.user?.email) {
+
+    // 開発環境ではセッションなしでもテスト可能
+    const isDev = process.env.NODE_ENV === 'development'
+    const userEmail = session?.user?.email || (isDev ? 'test@example.com' : null)
+
+    if (!userEmail) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       )
     }
 
-    const userId = session.user.email
+    const userId = userEmail
     const customer = await getCustomerByUserId(userId)
 
     // 課金期間
@@ -110,7 +115,12 @@ export async function POST(request: NextRequest) {
 
   try {
     const session = await getServerSession()
-    if (!session?.user?.email) {
+
+    // 開発環境ではセッションなしでもテスト可能
+    const isDev = process.env.NODE_ENV === 'development'
+    const userEmail = session?.user?.email || (isDev ? 'test@example.com' : null)
+
+    if (!userEmail) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -130,7 +140,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const userId = session.user.email
+    const userId = userEmail
     const customer = await getCustomerByUserId(userId)
 
     if (!customer) {
