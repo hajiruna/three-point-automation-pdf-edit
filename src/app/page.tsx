@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import Link from 'next/link'
 import {
   PdfUploader,
   PdfPageGrid,
@@ -20,6 +21,8 @@ import {
   getTotalPageCount,
 } from '@/lib/pdf'
 import { logPdfExtraction, logPdfMerge } from '@/lib/supabase/logger'
+import { useBilling } from '@/components/billing/BillingProvider'
+import { isBillingEnabled } from '@/lib/billing/feature-flags'
 
 type TabId = 'extract' | 'merge'
 
@@ -48,6 +51,12 @@ const tabs = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>('extract')
   const { showToast } = useToast()
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [upgradeMessage, setUpgradeMessage] = useState('')
+
+  // Billing
+  const { checkLimit, refreshUsage, currentPlan } = useBilling()
+  const billingEnabled = isBillingEnabled()
 
   // Extract feature state
   const {
@@ -115,6 +124,13 @@ export default function Home() {
   const handleDownload = useCallback(async () => {
     if (!document || selectedPages.size === 0) return
 
+    // 利用制限チェック
+    if (billingEnabled && !checkLimit('extract', selectedPages.size)) {
+      setUpgradeMessage(`抽出回数の上限に達しました。現在のプラン: ${currentPlan?.name || 'Free'}`)
+      setShowUpgradeModal(true)
+      return
+    }
+
     setIsExporting(true)
 
     try {
@@ -130,6 +146,23 @@ export default function Home() {
         pages_extracted: selectedArray.length,
       })
 
+      // 利用量を記録
+      if (billingEnabled) {
+        try {
+          await fetch('/api/billing/usage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              operationType: 'extract',
+              pageCount: selectedArray.length,
+            }),
+          })
+          refreshUsage()
+        } catch (e) {
+          console.error('Failed to record usage:', e)
+        }
+      }
+
       showToast(`${selectedPages.size}ページを抽出しました`, 'success')
     } catch (err) {
       console.error('Failed to export PDF:', err)
@@ -138,7 +171,7 @@ export default function Home() {
     } finally {
       setIsExporting(false)
     }
-  }, [document, selectedPages, pdfProxy, showToast])
+  }, [document, selectedPages, pdfProxy, showToast, billingEnabled, checkLimit, currentPlan, refreshUsage])
 
   const handlePreviewPage = useCallback(
     async (pageNumber: number) => {
@@ -168,6 +201,15 @@ export default function Home() {
   const handleMergeDownload = useCallback(async () => {
     if (mergePdfs_list.length < 2) return
 
+    const totalPages = getTotalPageCount(mergePdfs_list)
+
+    // 利用制限チェック
+    if (billingEnabled && !checkLimit('merge', totalPages)) {
+      setUpgradeMessage(`合体回数の上限に達しました。現在のプラン: ${currentPlan?.name || 'Free'}`)
+      setShowUpgradeModal(true)
+      return
+    }
+
     setIsMerging(true)
 
     try {
@@ -178,8 +220,25 @@ export default function Home() {
       logPdfMerge({
         file_names: mergePdfs_list.map((pdf) => pdf.name),
         file_count: mergePdfs_list.length,
-        total_pages: getTotalPageCount(mergePdfs_list),
+        total_pages: totalPages,
       })
+
+      // 利用量を記録
+      if (billingEnabled) {
+        try {
+          await fetch('/api/billing/usage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              operationType: 'merge',
+              pageCount: totalPages,
+            }),
+          })
+          refreshUsage()
+        } catch (e) {
+          console.error('Failed to record usage:', e)
+        }
+      }
 
       showToast(`${mergePdfs_list.length}個のPDFを合体しました`, 'success')
     } catch (err) {
@@ -189,7 +248,7 @@ export default function Home() {
     } finally {
       setIsMerging(false)
     }
-  }, [mergePdfs_list, showToast])
+  }, [mergePdfs_list, showToast, billingEnabled, checkLimit, currentPlan, refreshUsage])
 
   // Render Extract Tab Content
   const renderExtractContent = () => {
@@ -398,6 +457,41 @@ export default function Home() {
 
       {/* Tab Content */}
       {activeTab === 'extract' ? renderExtractContent() : renderMergeContent()}
+
+      {/* Upgrade Modal */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6">
+            <div className="text-center">
+              {/* Warning Icon */}
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-900 mb-2">利用上限に達しました</h3>
+              <p className="text-gray-600 mb-6">{upgradeMessage}</p>
+
+              <div className="flex flex-col gap-3">
+                <Link
+                  href="/billing"
+                  className="w-full px-6 py-3 rounded-lg bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors"
+                  onClick={() => setShowUpgradeModal(false)}
+                >
+                  プランをアップグレード
+                </Link>
+                <button
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="w-full px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                >
+                  閉じる
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
