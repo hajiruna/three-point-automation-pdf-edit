@@ -3,6 +3,8 @@ import './globals.css'
 import { Header, Footer, ThemeWrapper } from '@/components/layout'
 import { ToastProvider, ThemeProvider } from '@/components/ui'
 import { AuthProvider } from '@/components/auth'
+import { BillingProvider } from '@/components/billing'
+import { isBillingEnabled } from '@/lib/billing/feature-flags'
 
 export const metadata: Metadata = {
   title: 'PDF Page Selector - ページ抽出ツール',
@@ -14,19 +16,33 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const billingEnabled = isBillingEnabled()
+
   return (
     <html lang="ja">
       <body>
         <AuthProvider>
           <ThemeProvider>
             <ThemeWrapper>
-              <ToastProvider>
-                <Header />
-                <main className="flex-1">
-                  {children}
-                </main>
-                <Footer />
-              </ToastProvider>
+              {billingEnabled ? (
+                <BillingProvider>
+                  <ToastProvider>
+                    <Header />
+                    <main className="flex-1">
+                      {children}
+                    </main>
+                    <Footer />
+                  </ToastProvider>
+                </BillingProvider>
+              ) : (
+                <ToastProvider>
+                  <Header />
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                  <Footer />
+                </ToastProvider>
+              )}
             </ThemeWrapper>
           </ThemeProvider>
         </AuthProvider>
