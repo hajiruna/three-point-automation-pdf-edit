@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client'
+import { isAdminServer } from '@/lib/auth/admin'
 
 export async function GET() {
   // 認証チェック
@@ -10,6 +11,11 @@ export async function GET() {
   const isDev = process.env.NODE_ENV === 'development'
   if (!session && !isDev) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // 管理者チェック（本番環境のみ）
+  if (!isDev && !isAdminServer(session?.user?.email)) {
+    return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
   }
 
   if (!isSupabaseConfigured()) {
