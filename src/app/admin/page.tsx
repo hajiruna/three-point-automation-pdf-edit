@@ -67,7 +67,15 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const isDev = process.env.NODE_ENV === 'development'
+
   useEffect(() => {
+    // 開発環境では認証をスキップ
+    if (isDev) {
+      fetchStats()
+      return
+    }
+
     if (status === 'unauthenticated') {
       router.push('/auth/signin')
       return
@@ -76,7 +84,7 @@ export default function AdminDashboard() {
     if (status === 'authenticated') {
       fetchStats()
     }
-  }, [status, router])
+  }, [status, router, isDev])
 
   const fetchStats = async () => {
     try {
@@ -93,7 +101,7 @@ export default function AdminDashboard() {
     }
   }
 
-  if (status === 'loading' || loading) {
+  if ((!isDev && status === 'loading') || loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
         <div className="text-center">
