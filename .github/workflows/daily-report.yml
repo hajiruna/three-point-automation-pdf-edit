@@ -7,6 +7,10 @@ on:
   # 手動実行も可能
   workflow_dispatch:
 
+# 書き込み権限を付与
+permissions:
+  contents: write
+
 jobs:
   generate-report:
     runs-on: ubuntu-latest
