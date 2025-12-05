@@ -24,7 +24,7 @@ export async function GET() {
     // 基本KPI
     const { data: kpiData, error: kpiError } = await supabase
       .from('usage_logs')
-      .select('*')
+      .select('id, action_type, pages_extracted, user_email, user_name, created_at, file_name')
 
     if (kpiError) throw kpiError
 

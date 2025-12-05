@@ -31,7 +31,7 @@ export async function getCustomerByUserId(userId: string): Promise<Customer | nu
 
   const { data, error } = await supabase
     .from('customers')
-    .select('*')
+    .select('id, user_id, email, stripe_customer_id, default_currency, created_at, updated_at')
     .eq('user_id', userId)
     .single()
 
@@ -52,7 +52,7 @@ export async function getCustomerByStripeId(stripeCustomerId: string): Promise<C
 
   const { data, error } = await supabase
     .from('customers')
-    .select('*')
+    .select('id, user_id, email, stripe_customer_id, default_currency, created_at, updated_at')
     .eq('stripe_customer_id', stripeCustomerId)
     .single()
 
@@ -139,7 +139,7 @@ export async function getActiveSubscription(customerId: string): Promise<Subscri
 
   const { data, error } = await supabase
     .from('subscriptions')
-    .select('*')
+    .select('id, customer_id, stripe_subscription_id, stripe_price_id, plan_type, billing_interval, status, current_period_start, current_period_end, cancel_at_period_end, canceled_at, created_at, updated_at')
     .eq('customer_id', customerId)
     .in('status', ['active', 'trialing'])
     .order('created_at', { ascending: false })
@@ -163,7 +163,7 @@ export async function getSubscriptionByStripeId(stripeSubscriptionId: string): P
 
   const { data, error } = await supabase
     .from('subscriptions')
-    .select('*')
+    .select('id, customer_id, stripe_subscription_id, stripe_price_id, plan_type, billing_interval, status, current_period_start, current_period_end, cancel_at_period_end, canceled_at, created_at, updated_at')
     .eq('stripe_subscription_id', stripeSubscriptionId)
     .single()
 
@@ -350,7 +350,7 @@ export async function getUnreportedUsage(customerId: string): Promise<UsageRecor
 
   const { data, error } = await supabase
     .from('usage_records')
-    .select('*')
+    .select('id, customer_id, operation_type, page_count, billing_period_start, billing_period_end, stripe_usage_record_id, reported_to_stripe, created_at')
     .eq('customer_id', customerId)
     .eq('reported_to_stripe', false)
     .order('created_at', { ascending: true })
@@ -394,7 +394,7 @@ export async function getInvoices(customerId: string, limit = 10): Promise<Invoi
 
   const { data, error } = await supabase
     .from('invoices')
-    .select('*')
+    .select('id, customer_id, stripe_invoice_id, amount_due, amount_paid, currency, status, invoice_pdf_url, hosted_invoice_url, period_start, period_end, created_at')
     .eq('customer_id', customerId)
     .order('created_at', { ascending: false })
     .limit(limit)
@@ -464,7 +464,7 @@ export async function getPayments(customerId: string, limit = 10): Promise<Payme
 
   const { data, error } = await supabase
     .from('payments')
-    .select('*')
+    .select('id, customer_id, stripe_payment_intent_id, invoice_id, amount, currency, status, failure_message, created_at')
     .eq('customer_id', customerId)
     .order('created_at', { ascending: false })
     .limit(limit)
