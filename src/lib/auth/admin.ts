@@ -21,9 +21,9 @@ export function isAdmin(email: string | null | undefined): boolean {
 
   const adminEmails = getAdminEmails()
 
-  // 管理者リストが空の場合、全員にアクセスを許可（開発用）
+  // 管理者リストが空の場合、アクセスを拒否（セキュリティ強化）
   if (adminEmails.length === 0) {
-    return true
+    return false
   }
 
   return adminEmails.includes(email.toLowerCase())
@@ -41,9 +41,9 @@ export function isAdminServer(email: string | null | undefined): boolean {
     .map(e => e.trim().toLowerCase())
     .filter(e => e.length > 0)
 
-  // 管理者リストが空の場合、全員にアクセスを許可（開発用）
+  // 管理者リストが空の場合、アクセスを拒否（セキュリティ強化）
   if (emailList.length === 0) {
-    return true
+    return false
   }
 
   return emailList.includes(email.toLowerCase())
