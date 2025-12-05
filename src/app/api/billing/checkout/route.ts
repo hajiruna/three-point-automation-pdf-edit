@@ -9,12 +9,7 @@ import { isBillingEnabled, isStripeServerConfigured } from '@/lib/billing/featur
 import { requireStripeServer } from '@/lib/billing/stripe-server'
 import { getCustomerByUserId, createCustomer } from '@/lib/supabase/billing'
 import { getPlanByPriceId } from '@/lib/billing/plans'
-
-interface CheckoutRequest {
-  priceId: string
-  successUrl?: string
-  cancelUrl?: string
-}
+import { checkoutRequestSchema, formatZodError } from '@/lib/validations/billing'
 
 export async function POST(request: NextRequest) {
   // 課金機能チェック
@@ -46,15 +41,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body: CheckoutRequest = await request.json()
-    const { priceId, successUrl, cancelUrl } = body
+    const body = await request.json()
+    const parseResult = checkoutRequestSchema.safeParse(body)
 
-    if (!priceId) {
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: 'Price ID is required' },
+        { error: formatZodError(parseResult.error) },
         { status: 400 }
       )
     }
+
+    const { priceId, successUrl, cancelUrl } = parseResult.data
 
     // 価格IDからプラン情報を取得
     const planInfo = getPlanByPriceId(priceId)

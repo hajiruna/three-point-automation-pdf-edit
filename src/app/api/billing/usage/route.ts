@@ -15,7 +15,7 @@ import {
 } from '@/lib/supabase/billing'
 import { getCurrentBillingPeriod, getRemainingUsage, getUsagePercentage } from '@/lib/billing/usage-tracker'
 import { PLANS } from '@/lib/billing/plans'
-import type { OperationType } from '@/types/billing'
+import { usageRecordRequestSchema, formatZodError } from '@/lib/validations/billing'
 
 /**
  * GET: 利用量サマリー取得
@@ -124,17 +124,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { operationType, pageCount } = body as {
-      operationType: OperationType
-      pageCount: number
-    }
+    const parseResult = usageRecordRequestSchema.safeParse(body)
 
-    if (!operationType || !['extract', 'merge'].includes(operationType)) {
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: 'Invalid operation type' },
+        { error: formatZodError(parseResult.error) },
         { status: 400 }
       )
     }
+
+    const { operationType, pageCount } = parseResult.data
 
     const userId = userEmail
     const customer = await getCustomerByUserId(userId)
@@ -151,7 +150,7 @@ export async function POST(request: NextRequest) {
     const record = await recordUsage({
       customerId: customer.id,
       operationType,
-      pageCount: pageCount || 0,
+      pageCount,
       billingPeriodStart: start,
       billingPeriodEnd: end,
     })
