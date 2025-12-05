@@ -29,9 +29,7 @@ export async function POST(request: NextRequest) {
     // セッション確認
     const session = await getServerSession()
 
-    // 開発環境ではセッションなしでもテスト可能
-    const isDev = process.env.NODE_ENV === 'development'
-    const userEmail = session?.user?.email || (isDev ? 'test@example.com' : null)
+    const userEmail = session?.user?.email
 
     if (!userEmail) {
       return NextResponse.json(

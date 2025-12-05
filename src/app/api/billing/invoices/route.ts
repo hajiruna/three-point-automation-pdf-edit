@@ -19,9 +19,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession()
 
-    // 開発環境ではセッションなしでもテスト可能
-    const isDev = process.env.NODE_ENV === 'development'
-    const userEmail = session?.user?.email || (isDev ? 'test@example.com' : null)
+    const userEmail = session?.user?.email
 
     if (!userEmail) {
       return NextResponse.json(

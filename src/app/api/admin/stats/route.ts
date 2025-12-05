@@ -7,14 +7,12 @@ export async function GET() {
   // 認証チェック
   const session = await getServerSession()
 
-  // 開発環境ではセッションなしでもテスト可能
-  const isDev = process.env.NODE_ENV === 'development'
-  if (!session && !isDev) {
+  if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // 管理者チェック（本番環境のみ）
-  if (!isDev && !isAdminServer(session?.user?.email)) {
+  // 管理者チェック
+  if (!isAdminServer(session?.user?.email)) {
     return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
   }
 
