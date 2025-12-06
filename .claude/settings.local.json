@@ -10,7 +10,8 @@
       "Bash(pnpm build:*)",
       "Bash(pnpm dev)",
       "Bash(curl:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []
