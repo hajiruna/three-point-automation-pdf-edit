@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "PDFファイルから必要なページだけを抽出してダウンロードできるツール",
   "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": ["canvas", "unrs-resolver"]
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
