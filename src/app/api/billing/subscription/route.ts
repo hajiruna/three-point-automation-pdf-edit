@@ -4,6 +4,8 @@
  */
 
 import { NextResponse } from 'next/server'
+
+export const dynamic = 'force-dynamic'
 import { getServerSession } from 'next-auth'
 import { isBillingEnabled } from '@/lib/billing/feature-flags'
 import { getCustomerByUserId, getActiveSubscription } from '@/lib/supabase/billing'
