@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth'
 import AzureADProvider from 'next-auth/providers/azure-ad'
+import { isAdminServer } from '@/lib/auth/admin'
 
 const handler = NextAuth({
   providers: [
@@ -14,8 +15,21 @@ const handler = NextAuth({
       },
     }),
   ],
+  // セッション設定
+  session: {
+    strategy: 'jwt',
+    // セッション有効期限: 8時間（業務時間内での利用を想定）
+    maxAge: 8 * 60 * 60,
+    // セッション更新間隔: 1時間ごとに更新
+    updateAge: 60 * 60,
+  },
+  // JWT設定
+  jwt: {
+    // JWTの最大有効期限: 8時間
+    maxAge: 8 * 60 * 60,
+  },
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
       // 初回サインイン時にアクセストークンを保存
       if (account?.access_token) {
         token.accessToken = account.access_token
@@ -36,13 +50,20 @@ const handler = NextAuth({
           console.error('Failed to fetch user profile from Graph API:', error)
         }
       }
+
+      // 管理者フラグをトークンに追加（サーバーサイドで判定）
+      if (token.email) {
+        token.isAdmin = isAdminServer(token.email as string)
+      }
+
       return token
     },
     async session({ session, token }) {
-      // セッションに部署情報を追加
+      // セッションに部署情報と管理者フラグを追加
       if (session.user) {
         (session.user as { department?: string | null }).department = token.department as string | null
         (session.user as { jobTitle?: string | null }).jobTitle = token.jobTitle as string | null
+        (session.user as { isAdmin?: boolean }).isAdmin = token.isAdmin as boolean || false
       }
       return session
     },

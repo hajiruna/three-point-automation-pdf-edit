@@ -2,18 +2,31 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client'
 import { isAdminServer } from '@/lib/auth/admin'
+import { applyRateLimit, ADMIN_RATE_LIMIT } from '@/lib/security/rate-limit'
 
-export async function GET() {
+export async function GET(request: Request) {
+  // レート制限チェック
+  const { response: rateLimitResponse, headers: rateLimitHeaders } = applyRateLimit(
+    request,
+    ADMIN_RATE_LIMIT
+  )
+  if (rateLimitResponse) {
+    return rateLimitResponse
+  }
+
   // 認証チェック
   const session = await getServerSession()
 
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: rateLimitHeaders })
   }
 
   // 管理者チェック
   if (!isAdminServer(session?.user?.email)) {
-    return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 })
+    return NextResponse.json(
+      { error: 'Forbidden: Admin access required' },
+      { status: 403, headers: rateLimitHeaders }
+    )
   }
 
   if (!isSupabaseConfigured()) {

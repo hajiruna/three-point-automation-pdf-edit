@@ -10,8 +10,15 @@ import { requireStripeServer } from '@/lib/billing/stripe-server'
 import { getCustomerByUserId, createCustomer } from '@/lib/supabase/billing'
 import { getPlanByPriceId } from '@/lib/billing/plans'
 import { checkoutRequestSchema, formatZodError } from '@/lib/validations/billing'
+import { applyRateLimit, AUTH_RATE_LIMIT } from '@/lib/security/rate-limit'
 
 export async function POST(request: NextRequest) {
+  // レート制限チェック（決済APIは厳しめに制限）
+  const { response: rateLimitResponse } = applyRateLimit(request, AUTH_RATE_LIMIT)
+  if (rateLimitResponse) {
+    return rateLimitResponse
+  }
+
   // 課金機能チェック
   if (!isBillingEnabled()) {
     return NextResponse.json(

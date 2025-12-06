@@ -15,6 +15,7 @@ import {
   handlePaymentSucceeded,
   handlePaymentFailed,
 } from '@/lib/billing/webhook-handlers'
+import { markEventProcessed } from '@/lib/security/webhook-idempotency'
 
 // Webhook署名検証のためbodyをそのまま取得
 export const dynamic = 'force-dynamic'
@@ -72,6 +73,12 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Received webhook event:', event.type, event.id)
+
+    // 冪等性チェック（リプレイ攻撃防止）
+    if (!markEventProcessed(event.id)) {
+      console.log(`Skipping duplicate event: ${event.id}`)
+      return NextResponse.json({ received: true, duplicate: true })
+    }
 
     // イベント処理
     switch (event.type) {

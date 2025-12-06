@@ -5,12 +5,14 @@ import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from '@/components/ui'
 import { isBillingEnabled } from '@/lib/billing/feature-flags'
-import { isAdmin } from '@/lib/auth/admin'
 
 export function Header() {
   const { data: session } = useSession()
   const { theme, toggleTheme } = useTheme()
   const isDark = theme === 'dark'
+
+  // セッションからisAdminフラグを取得
+  const userIsAdmin = (session?.user as { isAdmin?: boolean } | undefined)?.isAdmin || false
 
   return (
     <header className={`sticky top-0 z-40 border-b transition-colors duration-300 ${
@@ -49,7 +51,7 @@ export function Header() {
           {/* Right side - User Info, Theme Toggle & Logo */}
           <div className="flex items-center gap-4">
             {/* Admin Dashboard Link - 管理者のみ表示 */}
-            {isAdmin(session?.user?.email) && (
+            {userIsAdmin && (
               <Link
                 href="/admin"
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-colors text-sm font-medium ${
@@ -66,7 +68,7 @@ export function Header() {
             )}
 
             {/* Billing Link - 管理者のみ表示 */}
-            {isAdmin(session?.user?.email) && isBillingEnabled() && (
+            {userIsAdmin && isBillingEnabled() && (
               <Link
                 href="/billing"
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-colors text-sm font-medium ${

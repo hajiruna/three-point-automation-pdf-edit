@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { isAdmin } from '@/lib/auth/admin'
 import {
   LineChart,
   Line,
@@ -69,30 +68,23 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [unauthorized, setUnauthorized] = useState(false)
 
-  const isDev = process.env.NODE_ENV === 'development'
-
   useEffect(() => {
-    // 開発環境では認証をスキップ
-    if (isDev) {
-      fetchStats()
-      return
-    }
-
     if (status === 'unauthenticated') {
       router.push('/auth/signin')
       return
     }
 
     if (status === 'authenticated') {
-      // 管理者チェック
-      if (!isAdmin(session?.user?.email)) {
+      // 管理者チェック（セッションに含まれるisAdminフラグを使用）
+      const user = session?.user as { isAdmin?: boolean } | undefined
+      if (!user?.isAdmin) {
         setUnauthorized(true)
         setLoading(false)
         return
       }
       fetchStats()
     }
-  }, [status, router, isDev, session])
+  }, [status, router, session])
 
   const fetchStats = async () => {
     try {
@@ -109,7 +101,7 @@ export default function AdminDashboard() {
     }
   }
 
-  if ((!isDev && status === 'loading') || loading) {
+  if (status === 'loading' || loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
         <div className="text-center">

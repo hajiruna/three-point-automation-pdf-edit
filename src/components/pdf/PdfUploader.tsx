@@ -3,7 +3,7 @@
 import { useCallback, useState, useRef, DragEvent, ChangeEvent } from 'react'
 import { Spinner } from '@/components/ui'
 import { useTheme } from '@/components/ui'
-import { isPdfFile } from '@/lib/utils'
+import { validatePdfFile } from '@/lib/utils'
 
 interface PdfUploaderProps {
   onFileSelect: (file: File) => void
@@ -13,20 +13,31 @@ interface PdfUploaderProps {
 export function PdfUploader({ onFileSelect, isLoading = false }: PdfUploaderProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isValidating, setIsValidating] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const { theme } = useTheme()
   const isDark = theme === 'dark'
 
   const handleFile = useCallback(
-    (file: File) => {
+    async (file: File) => {
       setError(null)
+      setIsValidating(true)
 
-      if (!isPdfFile(file)) {
-        setError('PDFファイルのみアップロード可能です')
-        return
+      try {
+        // PDFファイルの厳密な検証（マジックナンバー、サイズ含む）
+        const validation = await validatePdfFile(file)
+
+        if (!validation.valid) {
+          setError(validation.error || 'PDFファイルの検証に失敗しました')
+          return
+        }
+
+        onFileSelect(file)
+      } catch {
+        setError('ファイルの検証中にエラーが発生しました')
+      } finally {
+        setIsValidating(false)
       }
-
-      onFileSelect(file)
     },
     [onFileSelect]
   )
@@ -49,21 +60,21 @@ export function PdfUploader({ onFileSelect, isLoading = false }: PdfUploaderProp
       e.stopPropagation()
       setIsDragging(false)
 
-      if (isLoading) return
+      if (isLoading || isValidating) return
 
       const files = e.dataTransfer.files
       if (files.length > 0) {
         handleFile(files[0])
       }
     },
-    [handleFile, isLoading]
+    [handleFile, isLoading, isValidating]
   )
 
   const handleClick = useCallback(() => {
-    if (!isLoading) {
+    if (!isLoading && !isValidating) {
       inputRef.current?.click()
     }
-  }, [isLoading])
+  }, [isLoading, isValidating])
 
   const handleFileInput = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +102,7 @@ export function PdfUploader({ onFileSelect, isLoading = false }: PdfUploaderProp
           text-center
           cursor-pointer
           transition-all duration-200
-          ${isLoading
+          ${isLoading || isValidating
             ? isDark
               ? 'border-gray-600 bg-gray-800 cursor-not-allowed'
               : 'border-gray-300 bg-gray-50 cursor-not-allowed'
@@ -109,15 +120,15 @@ export function PdfUploader({ onFileSelect, isLoading = false }: PdfUploaderProp
           accept=".pdf,application/pdf"
           onChange={handleFileInput}
           className="hidden"
-          disabled={isLoading}
+          disabled={isLoading || isValidating}
           aria-label="PDFファイルを選択"
         />
 
-        {isLoading ? (
+        {isLoading || isValidating ? (
           <div className="flex flex-col items-center gap-4">
             <Spinner size="lg" />
             <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-              PDFを読み込んでいます...
+              {isValidating ? 'PDFを検証中...' : 'PDFを読み込んでいます...'}
             </p>
           </div>
         ) : (
